@@ -1,0 +1,144 @@
+\makeatletter
+
+% packages
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\RequirePackage{fontspec}
+\RequirePackage{metalogo} % for \XeTeX macro
+\RequirePackage{multicol}
+\RequirePackage{graphicx}
+\RequirePackage{polyglossia} % for proper hyphenation
+\setmainlanguage{english}
+\RequirePackage{tikz}
+\RequirePackage[colorlinks,urlcolor=blue]{hyperref}
+\RequirePackage[absolute]{textpos} % place the photo independently in \textblock
+\RequirePackage{accsupp} % to make fancy skill indicators copyable
+
+% colors
+\definecolor{lightgray}{gray}{0.8}
+
+% lengths
+\setlength\parindent{0cm}
+
+% layout
+\makeatletter\def\@oddhead{CV of \ShortName, \Occupation\hfil\thepage}\def\@oddfoot{}\makeatother
+
+% skill indicators
+\def\ACCSUPP@bdc{% (I honestly don't remember the purpose already, it's just a copy from accsupp-dvips.def;
+  \special{pdf:code \ACCSUPP@span BDC}% probably this should be driver-independent?)
+}
+\def\ACCSUPP@emc{%
+  \special{pdf:code EMC}%
+}
+\AccSuppSetup{space=true} % a quirk for accounting empty glyphs in Adobe Reader < 9.0
+
+% macros
+\newlength\charbase
+\newlength\charbasenow
+\newlength\signalwidth
+\newlength\spwidth
+\newlength\enspwidth
+
+\def\ifempty#1{
+ \def\temp{#1}
+ \ifx\temp\empty
+}
+\def\narchars#1#2{%
+ \parbox[t]{90mm}{\textbf{#1}:\\ #2}%
+ \vspace{6pt}%
+}
+% a bit of DRY violation, I know
+\def\chars#1#2#3{%
+ \setlength\charbasenow{\dimexpr\charbase - 5mm\relax}%
+ \parbox[t]{\dimexpr\charbasenow - \signalwidth - \spwidth\relax}{\raggedleft #2}\sp%
+ \parbox[b]{\signalwidth}{\hfill\signal{#1}\sp}%
+ \parbox[t]{\dimexpr\textwidth - \charbasenow\relax}{#3}%
+ \vspace{4pt}%
+}
+\def\briefchars#1#2{%
+ \setlength\charbasenow{\dimexpr\charbase - 13mm\relax}%
+ \parbox[t]{\dimexpr\charbasenow - \spwidth\relax}{\raggedleft #1}\sp%
+ \parbox[t]{\dimexpr\textwidth - \charbasenow\relax}{#2}%
+ \vspace{4pt}%
+}
+\def\subchar#1#2{%
+ \parbox[b]{\charbase}{\hfill\signal{#1}\sp\makebox[5mm]}%
+ \ \textbullet\ #2%
+ \vspace{4pt}%
+}
+\def\cap#1{%
+ {%
+  \vspace{14pt}%
+  \fontsize{20pt}{20pt} \selectfont #1%
+ }%
+ \vspace{14pt}%
+}
+\def\sp{%
+ \hspace*{\spwidth}%
+}
+\def\ensp{%
+ \hspace*{\enspwidth}%
+}
+
+\def\signal#1{
+ \ifempty{#1} \else
+  \BeginAccSupp{ActualText={|Level: #1|}}
+   \begin{tikzpicture}
+    \fill (0,0) circle (2pt);
+    \foreach \i in {2,3,4,5}
+     %\draw[\ifnum0\i>#1{dotted}\fi] (0.5+1.5*\i pt,-1+1.5*\i pt) arc (45:135:1+2*\i pt);
+     \draw[\ifnum0\i>#1{dotted}\fi] (2*\i pt,-2 pt) arc (0:90:2+2*\i pt);
+   \end{tikzpicture}%
+  \EndAccSupp{}%
+ \fi%
+}
+
+\def\signaldesc#1#2{\parbox[b]{8mm}{\signal{#1}}\parbox[c]{62mm}{#2}\vspace{4pt}}
+
+% commands
+\def\PrintCVHead{
+ \fontsize{12pt}{16pt}
+ \setmainfont{Noto Sans}
+ \newfontfamily\cyrillicfont[Mapping=tex-text]{Noto Sans}
+ \selectfont
+
+ \setlength\charbase{35mm}
+ \setlength\signalwidth{3.5ex}
+ \setlength\spwidth{1.5ex}
+ \settowidth\enspwidth{--}
+
+ \newpage
+ \begin{textblock*}{2cm}(15.5cm,2cm)\includegraphics[width=3.5cm]{\PhotoFilename}\end{textblock*}
+
+ \colorbox{lightgray}{
+  \parbox{70mm}{
+   \raggedright
+   \textbf{Experience level:}\vspace{4pt}
+
+   \signaldesc{1}{Used shortly}
+
+   \signaldesc{2}{Some practical experience and understanding of work}
+
+   \signaldesc{3}{Deep but definitely not comprehensive experience}
+
+   \signaldesc{4}{Used and mastered for a long time}
+
+   \signaldesc{5}{Feeling familiar with it}
+  }
+ }
+ \makebox[5mm]{}
+ \parbox{100mm}{
+  \textbf{Profile summary}
+
+  \narchars{Full name}{\FullName}
+
+  \narchars{Date of birth}{\BirthDate}
+
+  \narchars{Residence}{Odessa Region, Ukraine} \vspace{-3pt}
+
+  \narchars{Education}{Master of Software Engineering,\\ Odessa National Polytechnic University, 2018}
+  \vspace{-6pt}
+ }
+
+ \vspace{16pt}
+ The experience description includes occasional freelance jobs, training and pet projects.
+}
